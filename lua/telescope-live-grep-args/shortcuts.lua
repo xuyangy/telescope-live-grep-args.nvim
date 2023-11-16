@@ -22,6 +22,12 @@ local grep_under_default_opts = {
   trim = true,
 }
 
+local grep_visual_multi_opts = {
+  postfix = " -U ",
+  quote = true,
+  trim = true,
+}
+
 local function process_grep_under_text(value, opts)
   opts = opts or {}
   opts = vim.tbl_extend("force", grep_under_default_opts, opts)
@@ -41,6 +47,21 @@ local function process_grep_under_text(value, opts)
   opts["default_text"] = value
 
   return opts
+end
+
+local function process_grep_visual_multi_text(value, opts)
+  opts = opts or {}
+  opts = vim.tbl_extend("force", grep_visual_multi_opts, opts)
+
+  if opts.trim then
+    value = vim.trim(value)
+  end
+
+  if opts.postfix then
+    value = value .. opts.postfix
+  end
+
+  return value
 end
 
 local M = {}
@@ -72,6 +93,17 @@ M.grep_word_under_cursor_current_buffer = function(opts)
   local curr_path = vim.fn.expand("%")
   opts["search_dirs"] = { curr_path }
   M.grep_word_under_cursor(opts)
+end
+
+M.grep_visual_multi = function(opts)
+  local visual = get_visual()
+  local escapd_visual = {}
+  for _, v in ipairs(visual) do
+    table.insert(escapd_visual, helpers.escape(v, opts))
+  end
+  local text = table.concat(escapd_visual, "\\n") or ""
+  text = process_grep_visual_multi_text(text, opts)
+  live_grep_args.live_grep_args({ default_text = text })
 end
 
 return M
