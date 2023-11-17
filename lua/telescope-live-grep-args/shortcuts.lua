@@ -18,6 +18,11 @@ local function get_visual()
   local _, ls, cs = unpack(vim.fn.getpos("'<"))
   local _, le, ce = unpack(vim.fn.getpos("'>"))
 
+  -- visual line mode, ce can be a very large number equal to v:maxcol
+  if ce > 999 then
+    ce = vim.fn.col("'>")
+  end
+
   return vim.api.nvim_buf_get_text(0, ls - 1, cs - 1, le - 1, ce, {})
 end
 
