@@ -6,12 +6,17 @@ local live_grep_args = require("telescope").extensions.live_grep_args
 local helpers = require("telescope-live-grep-args.helpers")
 
 local function get_visual()
-  local _, ls, cs = unpack(vim.fn.getpos("v"))
-  local _, le, ce = unpack(vim.fn.getpos("."))
+  --  get visual selection from cursor positions in visual mode
+  -- local _, ls, cs = unpack(vim.fn.getpos("v"))
+  -- local _, le, ce = unpack(vim.fn.getpos("."))
+  -- -- nvim_buf_get_text requires start and end args be in correct order
+  -- ls, le = math.min(ls, le), math.max(ls, le)
+  -- cs, ce = math.min(cs, ce), math.max(cs, ce)
 
-  -- nvim_buf_get_text requires start and end args be in correct order
-  ls, le = math.min(ls, le), math.max(ls, le)
-  cs, ce = math.min(cs, ce), math.max(cs, ce)
+  -- get visually selected text
+  vim.fn.feedkeys(":", "nx") -- exit visual mode so '< and '> marks are set
+  local _, ls, cs = unpack(vim.fn.getpos("'<"))
+  local _, le, ce = unpack(vim.fn.getpos("'>"))
 
   return vim.api.nvim_buf_get_text(0, ls - 1, cs - 1, le - 1, ce, {})
 end
